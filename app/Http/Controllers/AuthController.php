@@ -11,33 +11,46 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'account_type' => 'required|in:private,pro',
-            'address' => 'required|string',
-            'company_name' => 'required_if:account_type,pro|string|max:255',
-            'cfe_number' => 'required_if:account_type,pro|string|max:255',
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8',
+                'account_type' => 'required|in:private,pro',
+                'address' => 'required|string',
+                'company_name' => 'required_if:account_type,pro|string|max:255',
+                'cfe_number' => 'required_if:account_type,pro|string|max:255',
+            ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'account_type' => $request->account_type,
-            'address' => $request->address,
-            'company_name' => $request->account_type === 'pro' ? $request->company_name : null,
-            'cfe_number' => $request->account_type === 'pro' ? $request->cfe_number : null,
-        ]);
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'account_type' => $request->account_type,
+                'address' => $request->address,
+                'company_name' => $request->account_type === 'pro' ? $request->company_name : null,
+                'cfe_number' => $request->account_type === 'pro' ? $request->cfe_number : null,
+            ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+            $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'user' => $user,
-            'token' => $token,
-            'message' => 'Compte créé avec succès'
-        ], 201);
+            return response()->json([
+                'user' => $user,
+                'token' => $token,
+                'message' => 'Compte créé avec succès'
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Erreur de validation',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de l\'inscription: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Erreur lors de la création du compte: ' . $e->getMessage(),
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function login(Request $request)
