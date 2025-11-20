@@ -1,4 +1,4 @@
-# Backend Laravel - API
+# Backend Laravel 11 - API
 
 ## Installation
 
@@ -36,3 +36,9 @@ php artisan serve
 - `PUT /api/posts/{id}` - Modifier une publication
 - `DELETE /api/posts/{id}` - Supprimer une publication
 
+## Laravel 11
+
+Ce projet utilise Laravel 11 avec la nouvelle structure simplifiée :
+- Configuration centralisée dans `bootstrap/app.php`
+- Plus besoin de Kernel.php, Handler.php, etc.
+- Structure plus simple et moderne
